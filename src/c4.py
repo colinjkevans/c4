@@ -20,11 +20,10 @@ class Board(object):
         A string representation of the board to print to a terminal
         :return:
         """
-        full_board = self._fill_board()
+        rows = self._rows()
         row_strs = []
-        for i in reversed(range(self.NUM_ROWS)):
-            row_strs.append(' '.join([self.GLPYHS[col[i]] for col in full_board]))
-
+        for row in rows:
+            row_strs.append(' '.join([self.GLPYHS[i] for i in row]))
         return '\n'.join(row_strs)
 
     def add_disc(self, col, player):
@@ -55,47 +54,51 @@ class Board(object):
 
         return full_board
 
+    def _rows(self):
+        """
+        List of lists of board rows, starting from the top row
+        :return:
+        """
+        full_board = self._fill_board()
+        rows = []
+        for i in reversed(range(self.NUM_ROWS)):
+            rows.append([col[i] for col in full_board])
+        return rows
+
+    def _diagonals(self):
+        return []
+
     def check_win(self):
         """
         Check to see whether either player has won.
         #TODO doesn't handle both players having winning sequences
         :return: None for no winner, 0/1 if either of those players wins.
         """
-        full_board = self._fill_board()
-        return self._check_columns(full_board)
+        cols = self._fill_board()
+        rows = self._rows()
+        diags = self._diagonals()
 
-    def _check_rows(self):
-        pass
-
-    def _check_columns(self, full_board):
-        last_disc = None
-        count = 0
-        for col in full_board:
-            for disc in col:
-                if disc is None:
-                    # Iterating up the column, so any empty space found means
-                    # all above will be empty too
-                    break
-                elif disc == last_disc:
-                    count += 1
-                else:
-                    last_disc = disc
-                    count = 1
-
-                if count == self.WIN_LENGTH:
-                    return disc
+        for direction in [cols, rows, diags]:
+            for line in direction:
+                last_disc = None
+                count = 0
+                for disc in line:
+                    if disc == last_disc:
+                        count += 1
+                    else:
+                        last_disc = disc
+                        count = 1
+                    if count == self.WIN_LENGTH and disc is not None:
+                        return disc
         else:
             return None
 
-    def _check_diagonals(self):
-        pass
 
-
-board = Board()
-board.add_disc(0,0)
-board.add_disc(0,0)
-board.add_disc(0,0)
-board.add_disc(0,0)
-print(board)
-winner = board.check_win()
-print('Winner: {}'.format(winner))
+# board = Board()
+# board.add_disc(0, 1)
+# board.add_disc(1, 1)
+# board.add_disc(2, 1)
+# board.add_disc(3, 1)
+# print(board)
+# winner = board.check_win()
+# print('Winner: {}'.format(winner))
